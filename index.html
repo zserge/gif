@@ -164,8 +164,7 @@
 			function imageToBlob(image) {
 				var contentType = 'image/gif';
 				var sliceSize =  512;
-				var byteString = atob(image.split(',')[1]);
-				var byteCharacters = atob(byteString);
+				var byteCharacters = atob(image.split(',')[1]);
 				var byteArrays = [];
 				for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
 					var slice = byteCharacters.slice(offset, offset + sliceSize);

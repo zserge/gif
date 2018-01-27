@@ -15,7 +15,7 @@
 			.active { text-decoration: underline; }
 			.large { font-size: 48px; }
 			.container { display: flex; align-items: center; width: 100%; height: 100%; }
-			.app-container { margin: auto; position: relative; }
+			.app-container { margin: auto; position: relative; height: 240px; }
 			.overlay { position: absolute; top: 0; left: 0; bottom: 0; right: 0; display: flex; flex-direction: column; justify-content: flex-end; }
 
 			.step { padding: 1rem; }
@@ -35,43 +35,41 @@
 	<body>
 		<div class="container">
 			<div class="app-container">
-				<div class="video-container">
-					<video class="video" width="320" height="240" autoplay="true"></video>
-					<img class="gif overlay"></img>
+				<video class="video" width="320" height="240" autoplay="true"></video>
+				<img class="gif overlay"></img>
 
-					<div class="overlay step step-prepare">
-						<div>
-							<a href="#" class="large btn-start">start</a>
-						</div>
-						<div>
-							<a href="#" class="btn-filter-normal">normal</a> /
-							<a href="#" class="btn-filter-sepia">sepia</a> /
-							<a href="#" class="btn-filter-grey">grey</a>
-						</div>
-						<div>
-							<a href="#" class="btn-duration btn-duration-1">1</a> /
-							<a href="#" class="btn-duration btn-duration-3">3</a> /
-							<a href="#" class="btn-duration btn-duration-5">5</a> /
-							<a href="#" class="btn-duration btn-duration-10">10</a> sec
-						</div>
+				<div class="overlay step step-prepare">
+					<div>
+						<a href="#" class="large btn-start">start</a>
 					</div>
-
-					<div class="overlay step step-countdown hidden">
-						<div class="countdown">3</div>
+					<div>
+						<a href="#" class="btn-filter-normal">normal</a> /
+						<a href="#" class="btn-filter-sepia">sepia</a> /
+						<a href="#" class="btn-filter-grey">grey</a>
 					</div>
-
-					<div class="overlay step step-record hidden">
-						<div class="progress-container">
-							<div class="progress-value"></div>
-						</div>
-						<div class="progress-text"></div>
+					<div>
+						<a href="#" class="btn-duration btn-duration-1">1</a> /
+						<a href="#" class="btn-duration btn-duration-3">3</a> /
+						<a href="#" class="btn-duration btn-duration-5">5</a> /
+						<a href="#" class="btn-duration btn-duration-10">10</a> sec
 					</div>
+				</div>
 
-					<div class="overlay step step-done hidden">
-						<div>
-							<a href="#" download="capture.gif" class="btn-save">save</a> /
-							<a href="#" class="btn-restart">try again</a>
-						</div>
+				<div class="overlay step step-countdown hidden">
+					<div class="countdown">3</div>
+				</div>
+
+				<div class="overlay step step-record hidden">
+					<div class="progress-container">
+						<div class="progress-value"></div>
+					</div>
+					<div class="progress-text"></div>
+				</div>
+
+				<div class="overlay step step-done hidden">
+					<div>
+						<a href="#" download="capture.gif" class="btn-save">save</a> /
+						<a href="#" class="btn-restart">try again</a>
 					</div>
 				</div>
 			</div>
@@ -80,7 +78,6 @@
 		<script src="https://cdn.jsdelivr.net/npm/gifshot@0.4.5/dist/gifshot.min.js"></script>
 		<script type="text/javascript">
 			function record(video, duration, filter, progress, resolve, reject) {
-				console.log(filter);
 				var options = {
 					webcamVideoElement: video,
 					gifWidth: video.width,
@@ -200,7 +197,7 @@
 			};
 
 			btnSave.onclick = function() {
-				window.open(save.getAttribute('href'));
+				window.open(btnSave.getAttribute('href'));
 			};
 
 			btnRestart.onclick = function() {

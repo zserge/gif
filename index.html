@@ -4,77 +4,208 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1">
 		<title>GIF</title>
+		<link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
 		<style>
+			* { margin: 0; padding: 0; box-sizing: border-box; }
+			body, html {
+				height: 100%; font-family: 'Oswald', sans-serif; font-size: 24px; color: #ffeb3b;
+			}
+			a { color: #ffeb3b; text-decoration: none; }
+			a:hover { color: white; text-decoration: underline; }
+			.active { text-decoration: underline; }
+			.large { font-size: 48px; }
+			.container { display: flex; align-items: center; width: 100%; height: 100%; }
+			.app-container { margin: auto; position: relative; }
+			.overlay { position: absolute; top: 0; left: 0; bottom: 0; right: 0; display: flex; flex-direction: column; justify-content: flex-end; }
+
+			.step { padding: 1rem; }
+
+			.step-prepare, .step-done { transition: background 0.5s; }
+			.step-prepare:hover, .step-done:hover { background-color: rgba(0,0,0,0.5); }
+
+			.step-countdown { background-color: rgba(0,0,0,0.5); }
+			.step-countdown .countdown { font-size: 120px; margin: auto; }
+
+			.progress-container { top: 0; left: 0; right: 0; height: 4px; }
+			.progress-value { top: 0; left: 0; width: 0; height: 4px; background-color: #ffeb3b; }
+
+			.hidden { display: none; }
 		</style>
 	</head>
 	<body>
-		<video autoplay="true" id="video"></video>
-		<button id="start">start</button>
-		<button id="again">again</button>
+		<div class="container">
+			<div class="app-container">
+				<div class="video-container">
+					<video class="video" width="320" height="240" autoplay="true"></video>
+					<img class="gif overlay"></img>
 
-		<a id="save" download="x.gif">save</a>
+					<div class="overlay step step-prepare">
+						<div>
+							<a href="#" class="large btn-start">start</a>
+						</div>
+						<div>
+							<a href="#" class="btn-filter-normal">normal</a> /
+							<a href="#" class="btn-filter-sepia">sepia</a> /
+							<a href="#" class="btn-filter-grey">grey</a>
+						</div>
+						<div>
+							<a href="#" class="btn-duration btn-duration-1">1</a> /
+							<a href="#" class="btn-duration btn-duration-3">3</a> /
+							<a href="#" class="btn-duration btn-duration-5">5</a> /
+							<a href="#" class="btn-duration btn-duration-10">10</a> sec
+						</div>
+					</div>
 
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
+					<div class="overlay step step-countdown hidden">
+						<div class="countdown">3</div>
+					</div>
+
+					<div class="overlay step step-record hidden">
+						<div class="progress-container">
+							<div class="progress-value"></div>
+						</div>
+						<div class="progress-text"></div>
+					</div>
+
+					<div class="overlay step step-done hidden">
+						<div>
+							<a href="#" download="capture.gif" class="btn-save">save</a> /
+							<a href="#" class="btn-restart">try again</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/gifshot@0.4.5/dist/gifshot.min.js"></script>
 		<script type="text/javascript">
-			function record(video, w, h, duration, progress, resolve, reject) {
+			function record(video, duration, filter, progress, resolve, reject) {
+				console.log(filter);
 				var options = {
 					webcamVideoElement: video,
-					gifWidth: w,
-					gifHeight: h,
+					gifWidth: video.width,
+					gifHeight: video.height,
+					filter: filter,
 					interval: 0.1,
 					numFrames: (10 * duration)|0,
 					progressCallback: progress,
 				};
 				gifshot.createGIF(options, function(obj) {
 					if(!obj.error) {
-						resolve(obj.image)
+						resolve(obj.image);
 					} else {
-						reject()
+						reject(obj.errorMsg);
 					}
 				});
 			}
 
-			var video = document.querySelector("#video");
-			var start = document.querySelector("#start");
-			var save = document.querySelector("#save");
-			var again = document.querySelector("#again");
-
+			var videoStream;
 			navigator.getUserMedia = navigator.getUserMedia ||
 				navigator.webkitGetUserMedia ||
 				navigator.mozGetUserMedia ||
 				navigator.msGetUserMedia ||
 				navigator.oGetUserMedia;
 
-			video.style.width = '320px';
-			video.style.height = '240px';
 			if (navigator.getUserMedia) {       
 				navigator.getUserMedia({video: true}, function(stream) {
+					videoStream = stream;
 					video.src = window.URL.createObjectURL(stream);
 				}, function(e) {
-					console.log('error', e);
+					renderError(e);
 				});
 			}
 
-			start.onclick = function() {
-				record(video, 320, 240, 2, function(x) {
-					console.log('progress', x);
-				}, function(image) {
-					console.log('done');
-					animatedImage = document.createElement('img');
-					animatedImage.src = image;
-					document.body.appendChild(animatedImage);
-					save.setAttribute('href', image);
-				}, function() {
-					console.log('error');
-				});
+			function renderError(e) {
+				// TODO
+				video.src = '';
+				console.log(e);
+			}
+
+			var video = document.querySelector('.video');
+			var gif = document.querySelector('.gif');
+			var screenPrepare = document.querySelector('.step-prepare');
+			var screenCountdown = document.querySelector('.step-countdown');
+			var screenRecord = document.querySelector('.step-record');
+			var screenDone = document.querySelector('.step-done');
+			var btnStart = document.querySelector('.btn-start');
+			var btnSave = document.querySelector('.btn-save');
+			var btnRestart = document.querySelector('.btn-restart');
+
+			var duration = 3;
+			document.querySelector('.btn-duration-'+duration).classList.add('active');
+			var btnsDuration = document.querySelectorAll('.btn-duration');
+			[1, 3, 5, 10].forEach(function(n) {
+				var btn = document.querySelector('.btn-duration-'+n);
+				btn.onclick = function() {
+					Array.prototype.forEach.call(btnsDuration, function(el) {
+						el.classList.remove('active');
+					});
+					duration = n;
+					btn.classList.add('active');
+				};
+			});
+
+			var filter = '';
+			var btnNormal = document.querySelector('.btn-filter-normal');
+			var btnSepia = document.querySelector('.btn-filter-sepia');
+			var btnGrey = document.querySelector('.btn-filter-grey');
+			btnNormal.classList.add('active');
+			function setFilter(cssFilter) {
+				return function() {
+					btnNormal.classList.remove('active');
+					btnSepia.classList.remove('active');
+					btnGrey.classList.remove('active');
+					this.classList.add('active');
+					filter = cssFilter;
+					video.style.filter = cssFilter;
+				}
+			};
+			btnNormal.onclick = setFilter('');
+			btnSepia.onclick = setFilter('sepia(80%)');
+			btnGrey.onclick = setFilter('grayscale(80%)');
+
+			btnStart.onclick = function() {
+				screenPrepare.classList.add('hidden');
+				screenCountdown.classList.remove('hidden');
+				var n = 3;
+				var countdown = function() {
+					document.querySelector('.countdown').innerText = ''+n;
+					n--;
+					if (n < 0) {
+						clearInterval(tid);
+						screenCountdown.classList.add('hidden');
+						screenRecord.classList.remove('hidden');
+						record(video, duration, filter, function(progress) {
+							document.querySelector('.progress-value').style.width = '' + ((progress*100)|0) + '%';
+							if (progress >= 1) {
+								document.querySelector('.progress-container').classList.add('hidden');
+								document.querySelector('.progress-text').innerText = 'encoding...';
+							}
+						}, function(image) {
+							screenRecord.classList.add('hidden');
+							screenDone.classList.remove('hidden');
+							video.pause();
+							video.src = '';
+							videoStream.getTracks()[0].stop();
+							gif.classList.remove('hidden');
+							gif.src = image;
+							btnSave.setAttribute('href', image);
+						}, function(e) {
+							renderError(e);
+						});
+					}
+				};
+				var tid = setInterval(countdown, 1000);
+				countdown();
 			};
 
-			save.onclick = function() {
+			btnSave.onclick = function() {
 				window.open(save.getAttribute('href'));
 			};
 
-			again.onclick = function() {
+			btnRestart.onclick = function() {
 				window.location.href = window.location.href;
+				window.location.reload();
 			};
 		</script>
 	</body>

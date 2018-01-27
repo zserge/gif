@@ -1,5 +1,81 @@
-<html>
-  <body>
-    <h1>Hello</h1>
-  </body>
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<title>GIF</title>
+		<style>
+		</style>
+	</head>
+	<body>
+		<video autoplay="true" id="video"></video>
+		<button id="start">start</button>
+		<button id="again">again</button>
+
+		<a id="save" download="x.gif">save</a>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
+		<script type="text/javascript">
+			function record(video, w, h, duration, progress, resolve, reject) {
+				var options = {
+					webcamVideoElement: video,
+					gifWidth: w,
+					gifHeight: h,
+					interval: 0.1,
+					numFrames: (10 * duration)|0,
+					progressCallback: progress,
+				};
+				gifshot.createGIF(options, function(obj) {
+					if(!obj.error) {
+						resolve(obj.image)
+					} else {
+						reject()
+					}
+				});
+			}
+
+			var video = document.querySelector("#video");
+			var start = document.querySelector("#start");
+			var save = document.querySelector("#save");
+			var again = document.querySelector("#again");
+
+			navigator.getUserMedia = navigator.getUserMedia ||
+				navigator.webkitGetUserMedia ||
+				navigator.mozGetUserMedia ||
+				navigator.msGetUserMedia ||
+				navigator.oGetUserMedia;
+
+			video.style.width = '320px';
+			video.style.height = '240px';
+			if (navigator.getUserMedia) {       
+				navigator.getUserMedia({video: true}, function(stream) {
+					video.src = window.URL.createObjectURL(stream);
+				}, function(e) {
+					console.log('error', e);
+				});
+			}
+
+			start.onclick = function() {
+				record(video, 320, 240, 2, function(x) {
+					console.log('progress', x);
+				}, function(image) {
+					console.log('done');
+					animatedImage = document.createElement('img');
+					animatedImage.src = image;
+					document.body.appendChild(animatedImage);
+					save.setAttribute('href', image);
+				}, function() {
+					console.log('error');
+				});
+			};
+
+			save.onclick = function() {
+				window.open(save.getAttribute('href'));
+			};
+
+			again.onclick = function() {
+				window.location.href = window.location.href;
+			};
+		</script>
+	</body>
 </html>

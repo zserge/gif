@@ -161,6 +161,25 @@
 			btnSepia.onclick = setFilter('sepia(80%)');
 			btnGrey.onclick = setFilter('grayscale(80%)');
 
+			function imageToBlob(image) {
+				var contentType = 'image/gif';
+				var sliceSize =  512;
+				var byteString = atob(image.split(',')[1]);
+				var byteCharacters = atob(byteString);
+				var byteArrays = [];
+				for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+					var slice = byteCharacters.slice(offset, offset + sliceSize);
+					var byteNumbers = new Array(slice.length);
+					for (var i = 0; i < slice.length; i++) {
+						byteNumbers[i] = slice.charCodeAt(i);
+					}
+					var byteArray = new Uint8Array(byteNumbers);
+					byteArrays.push(byteArray);
+				}
+				var blob = new Blob(byteArrays, {type: contentType});
+				return blob;
+			}
+
 			btnStart.onclick = function() {
 				screenPrepare.classList.add('hidden');
 				screenCountdown.classList.remove('hidden');
@@ -186,7 +205,8 @@
 							videoStream.getTracks()[0].stop();
 							gif.classList.remove('hidden');
 							gif.src = image;
-							btnSave.setAttribute('href', image);
+							var blob = imageToBlob(image);
+							btnSave.setAttribute('href', window.URL.createObjectURL(blob));
 						}, function(e) {
 							renderError(e);
 						});
@@ -194,10 +214,6 @@
 				};
 				var tid = setInterval(countdown, 1000);
 				countdown();
-			};
-
-			btnSave.onclick = function() {
-				window.open(btnSave.getAttribute('href'));
 			};
 
 			btnRestart.onclick = function() {

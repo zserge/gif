@@ -1,0 +1,15 @@
+{
+  "short_name": "GIF",
+  "name": "GIF Recorder",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./",
+  "display": "standalone",
+  "theme_color": "#ffeb3b",
+  "background_color": "#ffeb3b"
+}

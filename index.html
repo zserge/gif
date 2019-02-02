@@ -225,6 +225,10 @@
 				window.location.href = window.location.href;
 				window.location.reload();
 			};
+
+			if('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('sw.js');
+			}
 		</script>
 	</body>
 </html>

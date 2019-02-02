@@ -8,7 +8,7 @@
       "type": "image/png"
     }
   ],
-  "start_url": "https://zserge.com/git/index.html",
+  "start_url": "./",
   "display": "standalone",
   "theme_color": "#ffeb3b",
   "background_color": "#ffeb3b"

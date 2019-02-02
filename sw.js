@@ -12,15 +12,7 @@ self.addEventListener('fetch', (event) => {
       const myCache = await caches.open(cacheName);
       await myCache.put(request, responseCopy);
     }());
-    if (request.headers.get('Accept').includes('text/html')) {
-      try {
-        return await responseFromFetch;
-      } catch(error) {
-        return caches.match(request);
-      }
-    } else {
-      const responseFromCache = await caches.match(request);
-      return responseFromCache || responseFromFetch;
-    }
+    const responseFromCache = await caches.match(request);
+    return responseFromCache || responseFromFetch;
   }());
 });

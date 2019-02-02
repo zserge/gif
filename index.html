@@ -77,7 +77,7 @@
 			</div>
 		</div>
 
-		<script src="https://cdn.jsdelivr.net/npm/gifshot@0.4.5/dist/gifshot.min.js"></script>
+		<script src="gifshot.min.js"></script>
 		<script type="text/javascript">
 			function record(video, duration, filter, progress, resolve, reject) {
 				var options = {
@@ -108,7 +108,11 @@
 			if (navigator.getUserMedia) {       
 				navigator.getUserMedia({video: true}, function(stream) {
 					videoStream = stream;
-					video.src = window.URL.createObjectURL(stream);
+					try {
+						video.srcObject = stream;
+					} catch (error) {
+						video.src = window.URL.createObjectURL(stream);
+					}
 				}, function(e) {
 					renderError(e);
 				});
